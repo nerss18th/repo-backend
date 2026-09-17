@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./Backend-app
+    container_name: node_backend
+    restart: always
+    command: npx nodemon index.js
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./Backend-app/.env
+    depends_on:
+      - db
+    volumes:
+      - ./Backend-app:/app
+      - /app/node_modules
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ontology_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_web
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:

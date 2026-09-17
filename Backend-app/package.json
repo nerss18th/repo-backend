@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "docxtemplater": "^3.70.0",
+    "docxtemplater-image-module-free": "^1.1.1",
+    "dotenv": "^17.4.2",
+    "expres": "^0.0.5",
+    "express": "^5.2.1",
+    "image-size": "^2.0.4",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.3.0",
+    "mysql2": "^3.24.3",
+    "pizzip": "^3.2.0"
+  },
+  "name": "backend-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
