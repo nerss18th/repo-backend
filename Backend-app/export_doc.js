@@ -391,6 +391,15 @@ router.get('/project/:projectId/activity-diagram', authGuard, async (req, res) =
                     criteria
                 });
             }
+            if (decisionNodesData.length === 0) {
+                decisionNodesData.push({
+                    decisionNo: '-',
+                    laneNo: '-',
+                    fromActionNo: '-',
+                    caption: '-',
+                    criteria: [{ criteriaNo: '-', detail: '-', referenceId: '-' }]
+                });
+            }
 
             const startPoint = startPoints[0] || { fromLaneNo: '', toAction: '' };
             const isLast = (i === diagramsList.length - 1);
@@ -403,7 +412,8 @@ router.get('/project/:projectId/activity-diagram', authGuard, async (req, res) =
             
             let absoluteImagePath = null;
             if (ad.image_path) {
-                absoluteImagePath = path.join(__dirname, '..', ad.image_path);
+                absoluteImagePath = path.join(__dirname, ad.image_path);
+                console.log("Activity diagram specific image:", ad.image_path, "resolved to:", absoluteImagePath, "exists?", fs.existsSync(absoluteImagePath));
             } else {
                 const [globalDiagrams] = await pool.query(
                     'SELECT image_path FROM diagrams WHERE project_id = ? AND type = "activity"',
