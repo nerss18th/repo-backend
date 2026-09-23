@@ -5,16 +5,16 @@ const fs = require('fs');
 const PizZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
 const ImageModule = require('docxtemplater-image-module-free');
-const pool = require('./mysql');
-const { authGuard } = require('./authguard');
+const pool = require('../config/mysql');
+const { authGuard } = require('../config/authguard');
 
 // Helper function to read file asynchronously (if needed, but fs.readFileSync is fine for docxtemplater)
 const getTemplatePath = (diagramType, fileName) => {
-    return path.join(__dirname, 'templates', diagramType, fileName);
+    return path.join(__dirname, '..', 'templates', diagramType, fileName);
 };
 
 const getExportPath = (diagramType, fileName) => {
-    return path.join(__dirname, 'exports', diagramType, fileName);
+    return path.join(__dirname, '..', 'exports', diagramType, fileName);
 };
 
 const replaceEmpty = (obj) => {
@@ -68,7 +68,7 @@ router.get('/project/:projectId/use-case', authGuard, async (req, res) => {
         );
         let absoluteImagePath = null;
         if (diagrams.length > 0 && diagrams[0].image_path) {
-            absoluteImagePath = path.join(__dirname, diagrams[0].image_path);
+            absoluteImagePath = path.join(__dirname, '..', diagrams[0].image_path);
             if (!fs.existsSync(absoluteImagePath)) {
                 absoluteImagePath = null;
             }
@@ -235,7 +235,7 @@ router.get('/project/:projectId/class-diagram', authGuard, async (req, res) => {
         );
         let absoluteImagePath = null;
         if (diagrams.length > 0 && diagrams[0].image_path) {
-            absoluteImagePath = path.join(__dirname, diagrams[0].image_path);
+            absoluteImagePath = path.join(__dirname, '..', diagrams[0].image_path);
             if (!fs.existsSync(absoluteImagePath)) {
                 absoluteImagePath = null;
             }
@@ -412,7 +412,7 @@ router.get('/project/:projectId/activity-diagram', authGuard, async (req, res) =
             
             let absoluteImagePath = null;
             if (ad.image_path) {
-                absoluteImagePath = path.join(__dirname, ad.image_path);
+                absoluteImagePath = path.join(__dirname, '..', ad.image_path);
                 console.log("Activity diagram specific image:", ad.image_path, "resolved to:", absoluteImagePath, "exists?", fs.existsSync(absoluteImagePath));
             } else {
                 const [globalDiagrams] = await pool.query(
@@ -420,7 +420,7 @@ router.get('/project/:projectId/activity-diagram', authGuard, async (req, res) =
                     [projectId]
                 );
                 if (globalDiagrams.length > 0 && globalDiagrams[0].image_path) {
-                    absoluteImagePath = path.join(__dirname, globalDiagrams[0].image_path);
+                    absoluteImagePath = path.join(__dirname, '..', globalDiagrams[0].image_path);
                 }
             }
             if (absoluteImagePath && !fs.existsSync(absoluteImagePath)) {

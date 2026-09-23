@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('./mysql');
-const { authGuard } = require('./authguard');
+const pool = require('./config/mysql');
+const { authGuard, projectEditorGuard } = require('./config/authguard');
 
 /**
  * @route   GET /projects
@@ -109,6 +109,20 @@ router.get('/:id', authGuard, async (req, res) => {
             [projectId]
         );
 
+        // ถ้าเป็น Admin (และไม่ได้เป็นสมาชิกอยู่แล้ว) ให้เพิ่มสิทธิ์ Viewer ชั่วคราวเพื่อให้ดูข้อมูลได้
+        if (req.user && (req.user.role === 'admin' || req.user.plan === 'Admin')) {
+            const isAdminMember = members.some(m => m.user_id === req.user.id || m.email === req.user.email);
+            if (!isAdminMember) {
+                members.push({
+                    id: 999999, // ID สมมติ
+                    user_id: req.user.id,
+                    email: req.user.email,
+                    role: 'Viewer',
+                    name: req.user.name || 'Admin'
+                });
+            }
+        }
+
         return res.json({
             success: true,
             project: projects[0],
@@ -125,7 +139,7 @@ router.get('/:id', authGuard, async (req, res) => {
  * @desc    แก้ไขชื่อโปรเจกต์และรายละเอียด
  * @access  Private
  */
-router.put('/:id', authGuard, async (req, res) => {
+router.put('/:id', [authGuard, projectEditorGuard], async (req, res) => {
     try {
         const projectId = req.params.id;
         const { name, detail } = req.body;
@@ -156,12 +170,12 @@ router.delete('/:id', authGuard, async (req, res) => {
         const projectId = req.params.id;
         const userId = req.user.id;
 
-        // ตรวจสอบสิทธิ์ว่าใช่เจ้าของโปรเจกต์ (created_by) หรือไม่
+        // ตรวจสอบสิทธิ์ว่าใช่เจ้าของโปรเจกต์ (created_by) หรือเป็น Admin หรือไม่
         const [project] = await pool.query('SELECT created_by FROM projects WHERE id = ?', [projectId]);
         if (project.length === 0) {
             return res.status(404).json({ success: false, message: 'ไม่พบโปรเจกต์' });
         }
-        if (project[0].created_by !== userId) {
+        if (project[0].created_by !== userId && req.user.role !== 'admin' && req.user.plan !== 'Admin') {
             return res.status(403).json({ success: false, message: 'คุณไม่มีสิทธิ์ลบโปรเจกต์นี้' });
         }
 
@@ -206,7 +220,7 @@ router.post('/:id/members', authGuard, async (req, res) => {
 
         const [result] = await pool.query(
             'INSERT INTO project_members (project_id, user_id, email, role) VALUES (?, ?, ?, ?)',
-            [projectId, targetUserId, email.trim(), role || 'Editor']
+            [projectId, targetUserId, email.trim(), 'Editor']
         );
 
         return res.status(201).json({
@@ -215,7 +229,7 @@ router.post('/:id/members', authGuard, async (req, res) => {
             member: {
                 id: result.insertId,
                 email: email.trim(),
-                role: role || 'Editor',
+                role: 'Editor',
                 user_id: targetUserId
             }
         });

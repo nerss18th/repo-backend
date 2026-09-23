@@ -4,7 +4,7 @@ const path = require('path');
 // ตั้งค่า storage สำหรับ user profile picture
 const userStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, 'user_pic'));
+        cb(null, path.join(__dirname, '..', 'user_pic'));
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -16,7 +16,7 @@ const userStorage = multer.diskStorage({
 const diagramStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const type = req.body.type || 'other';
-        const dir = path.join(__dirname, 'diagram_pic', type);
+        const dir = path.join(__dirname, '..', 'diagram_pic', type);
         const fs = require('fs');
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });

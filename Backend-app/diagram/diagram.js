@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../mysql');
-const { authGuard } = require('../authguard');
-const { uploadDiagramPic } = require('../multerConfig');
+const pool = require('../config/mysql');
+const { authGuard, projectEditorGuard } = require('../config/authguard');
+const { uploadDiagramPic } = require('../config/multerConfig');
 
 /**
  * @route   GET /diagrams/project/:projectId/type/:type
@@ -52,7 +52,7 @@ router.get('/project/:projectId/type/:type', authGuard, async (req, res) => {
  * @desc    บันทึก/อัปเดตรูปภาพแผนภาพ Diagram
  * @access  Private
  */
-router.post('/upload', authGuard, async (req, res) => {
+router.post('/upload', [authGuard, projectEditorGuard], async (req, res) => {
     try {
         const { projectId, type, fileName, imagePath } = req.body;
 

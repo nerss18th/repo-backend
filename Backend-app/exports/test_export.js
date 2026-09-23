@@ -26,7 +26,7 @@ const replaceEmpty = (obj) => {
 };
 
 async function run() {
-    const templatePath = path.join(__dirname, 'templates', 'activity', 'Activity-Description-Form.docx');
+    const templatePath = path.join(__dirname, '..', 'templates', 'activity', 'Activity-Description-Form.docx');
     const content = fs.readFileSync(templatePath, 'binary');
     const zip = new PizZip(content);
 
@@ -67,7 +67,7 @@ async function run() {
         modules: [imageModule]
     });
 
-    const mockImagePath = path.join(__dirname, 'diagram_pic', 'activity', 'diagram_activity_pro_91547.png');
+    const mockImagePath = path.join(__dirname, '..', 'diagram_pic', 'activity', 'diagram_activity_pro_91547.png');
     console.log("Mock Image Path:", mockImagePath, "Exists?", fs.existsSync(mockImagePath));
 
     const renderData = replaceEmpty({
@@ -97,7 +97,7 @@ async function run() {
         doc.render(renderData);
         console.log("Render successful!");
         const buf = doc.getZip().generate({ type: 'nodebuffer' });
-        fs.writeFileSync(path.join(__dirname, 'test_output.docx'), buf);
+        fs.writeFileSync(path.join(__dirname, '..', 'test_output.docx'), buf);
         console.log("Saved test_output.docx");
     } catch (error) {
         console.error("Render error:", error);

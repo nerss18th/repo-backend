@@ -2,14 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const pool = require('./mysql');
-const userRoutes = require('./user');
+const pool = require('./config/mysql');
+const userRoutes = require('./user/user');
 const projectRoutes = require('./project');
 const useCaseRoutes = require('./diagram/use_case');
 const classDiagramRoutes = require('./diagram/class_diagram');
 const activityDiagramRoutes = require('./diagram/activity_diagram');
 const diagramRoutes = require('./diagram/diagram');
-const exportRoutes = require('./export_doc');
+const exportRoutes = require('./exports/export_doc');
+const adminRoutes = require('./user/admin');
 
 const app = express();
 app.use(cors());
@@ -28,6 +29,7 @@ app.use('/diagrams', classDiagramRoutes);
 app.use('/diagrams', activityDiagramRoutes);
 app.use('/diagrams', diagramRoutes);
 app.use('/export', exportRoutes);
+app.use('/admin', adminRoutes);
 
 // หน้าแรกเริ่มต้น
 app.get('/', (req, res) => {

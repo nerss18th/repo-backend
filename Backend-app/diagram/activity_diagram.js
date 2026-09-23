@@ -1,101 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../mysql');
-const { authGuard } = require('../authguard');
+const pool = require('../config/mysql');
+const { authGuard, projectEditorGuard } = require('../config/authguard');
 
-/**
- * Activity Diagram Helper: Init Tables if not exists
- */
-async function initActivityTables() {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_diagrams (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                project_id INT NOT NULL,
-                activity_id VARCHAR(50) NOT NULL,
-                activity_name VARCHAR(255) NOT NULL,
-                use_case_ref VARCHAR(255) DEFAULT '',
-                preliminary_activity_id VARCHAR(50) DEFAULT '',
-                description TEXT,
-                image_path LONGTEXT DEFAULT NULL,
-                file_name VARCHAR(255) DEFAULT NULL,
-                has_swimlane VARCHAR(10) DEFAULT 'No',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
 
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_swimlanes (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                activity_diagram_id INT NOT NULL,
-                lane_no VARCHAR(50) NOT NULL,
-                type VARCHAR(100) DEFAULT '',
-                caption VARCHAR(255) DEFAULT '',
-                reference_id VARCHAR(255) DEFAULT '',
-                FOREIGN KEY (activity_diagram_id) REFERENCES activity_diagrams(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_start_points (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                activity_diagram_id INT NOT NULL,
-                from_lane_no VARCHAR(50) DEFAULT '',
-                to_action VARCHAR(100) DEFAULT '',
-                FOREIGN KEY (activity_diagram_id) REFERENCES activity_diagrams(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_end_points (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                activity_diagram_id INT NOT NULL,
-                lane_no VARCHAR(50) DEFAULT '',
-                from_type VARCHAR(50) DEFAULT '',
-                from_no VARCHAR(50) DEFAULT '',
-                end_state VARCHAR(20) DEFAULT 'Success',
-                FOREIGN KEY (activity_diagram_id) REFERENCES activity_diagrams(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_actions (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                activity_diagram_id INT NOT NULL,
-                action_no VARCHAR(50) NOT NULL,
-                lane_no VARCHAR(50) DEFAULT '',
-                caption VARCHAR(255) DEFAULT '',
-                description TEXT,
-                FOREIGN KEY (activity_diagram_id) REFERENCES activity_diagrams(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_decision_nodes (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                activity_diagram_id INT NOT NULL,
-                decision_no VARCHAR(50) NOT NULL,
-                lane_no VARCHAR(50) DEFAULT '',
-                from_action_no VARCHAR(50) DEFAULT '',
-                caption VARCHAR(255) DEFAULT '',
-                FOREIGN KEY (activity_diagram_id) REFERENCES activity_diagrams(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS activity_decision_criteria (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                decision_node_id INT NOT NULL,
-                criteria_no VARCHAR(50) NOT NULL,
-                detail TEXT,
-                reference_id VARCHAR(50) DEFAULT '',
-                FOREIGN KEY (decision_node_id) REFERENCES activity_decision_nodes(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-    } catch (err) {
-        console.error('Init activity tables error:', err.message);
-    }
-}
 
 /**
  * @route   GET /diagrams/project/:projectId/activity-diagrams
@@ -104,7 +12,6 @@ async function initActivityTables() {
  */
 router.get('/project/:projectId/activity-diagrams', authGuard, async (req, res) => {
     try {
-        await initActivityTables();
         const { projectId } = req.params;
 
         let [diagrams] = await pool.query(
@@ -180,9 +87,8 @@ router.get('/project/:projectId/activity-diagrams', authGuard, async (req, res) 
  * @desc    บันทึก/อัปเดต Activity Diagram
  * @access  Private
  */
-router.post('/project/:projectId/activity-diagrams', authGuard, async (req, res) => {
+router.post('/project/:projectId/activity-diagrams', [authGuard, projectEditorGuard], async (req, res) => {
     try {
-        await initActivityTables();
         const { projectId } = req.params;
         const {
             id,
@@ -320,9 +226,8 @@ router.post('/project/:projectId/activity-diagrams', authGuard, async (req, res)
  * @desc    ลบ Activity Diagram ตาม ID
  * @access  Private
  */
-router.delete('/project/:projectId/activity-diagrams/:id', authGuard, async (req, res) => {
+router.delete('/project/:projectId/activity-diagrams/:id', [authGuard, projectEditorGuard], async (req, res) => {
     try {
-        await initActivityTables();
         const { projectId, id } = req.params;
 
         await pool.query('DELETE FROM activity_diagrams WHERE id = ? AND project_id = ?', [id, projectId]);

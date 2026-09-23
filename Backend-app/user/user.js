@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('./mysql');
-const { hashPassword, comparePassword, generateToken, authGuard } = require('./authguard');
-const { uploadUserPic } = require('./multerConfig');
+const pool = require('../config/mysql');
+const { hashPassword, comparePassword, generateToken, authGuard } = require('../config/authguard');
+const { uploadUserPic } = require('../config/multerConfig');
 
 /**
  * @route   POST /users/signup
@@ -65,7 +65,7 @@ router.post('/signup', async (req, res) => {
             plan: userPlan
         };
 
-        const token = generateToken({ id: newUser.id, email: newUser.email, username: newUser.username, name: newUser.name, plan: newUser.plan });
+        const token = generateToken({ id: newUser.id, email: newUser.email, username: newUser.username, name: newUser.name, plan: newUser.plan, role: 'user' });
 
         return res.status(201).json({
             success: true,
@@ -100,7 +100,7 @@ router.post('/login', async (req, res) => {
         }
 
         const [users] = await pool.query(
-            'SELECT id, email, password_hash, username, name, phone, plan, pic, description FROM users WHERE email = ?',
+            'SELECT id, email, password_hash, username, name, phone, plan, pic, description, role FROM users WHERE email = ?',
             [email]
         );
 
@@ -129,10 +129,11 @@ router.post('/login', async (req, res) => {
             phone: user.phone,
             plan: user.plan,
             pic: user.pic,
-            description: user.description
+            description: user.description,
+            role: user.role
         };
 
-        const token = generateToken({ id: user.id, email: user.email, username: user.username, name: loggedInUser.name, plan: user.plan });
+        const token = generateToken({ id: user.id, email: user.email, username: user.username, name: loggedInUser.name, plan: user.plan, role: user.role });
 
         return res.json({
             success: true,
@@ -158,7 +159,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', authGuard, async (req, res) => {
     try {
         const [users] = await pool.query(
-            'SELECT id, email, username, name, phone, plan, pic, description FROM users WHERE id = ?',
+            'SELECT id, email, username, name, phone, plan, pic, description, role FROM users WHERE id = ?',
             [req.user.id]
         );
 
@@ -218,7 +219,7 @@ router.put('/profile', async (req, res) => {
         );
 
         const [updatedUsers] = await pool.query(
-            'SELECT id, email, username, name, phone, plan, pic, description FROM users WHERE id = ?',
+            'SELECT id, email, username, name, phone, plan, pic, description, role FROM users WHERE id = ?',
             [targetId]
         );
 
