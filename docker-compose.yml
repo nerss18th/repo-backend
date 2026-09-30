@@ -1,47 +1,53 @@
 version: '3.8'
 
 services:
-  api:
-    build: ./Backend-app
-    container_name: node_backend
-    restart: always
-    command: npx nodemon index.js
-    ports:
-      - "3000:3000"
-    env_file:
-      - ./Backend-app/.env
-    depends_on:
-      - db
-    volumes:
-      - ./Backend-app:/app
-      - /app/node_modules
-
+  # ─── MySQL Database ───────────────────────────────────────────────────────────
   db:
     image: mysql:8.0
     container_name: mysql_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: rootpassword   # Change for production
       MYSQL_DATABASE: ontology_db
       MYSQL_USER: user
-      MYSQL_PASSWORD: userpassword
+      MYSQL_PASSWORD: userpassword        # Change for production
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
-      - ./init-db:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql                          # Persistent DB data
+      - ./init-db:/docker-entrypoint-initdb.d           # Initial SQL scripts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "user", "--password=userpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app_network
 
+  # ─── phpMyAdmin (Database GUI) ────────────────────────────────────────────────
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: phpmyadmin_web
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
+      UPLOAD_LIMIT: 100M
     ports:
       - "8080:80"
+    networks:
+      - app_network
 
+# ─── Named Volumes ────────────────────────────────────────────────────────────
 volumes:
   db_data:
+    driver: local
+
+# ─── Shared Network ───────────────────────────────────────────────────────────
+networks:
+  app_network:
+    driver: bridge

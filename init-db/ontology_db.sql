@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Sep 23, 2026 at 01:38 AM
+-- Generation Time: Sep 30, 2026 at 01:26 PM
 -- Server version: 8.0.46
 -- PHP Version: 8.3.33
 
@@ -408,21 +408,22 @@ CREATE TABLE `users` (
   `plan` enum('Standard','Pro','Admin') COLLATE utf8mb4_unicode_ci DEFAULT 'Standard',
   `pic` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `role` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'user'
+  `role` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'user',
+  `receipt` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `username`, `name`, `phone`, `plan`, `pic`, `description`, `role`) VALUES
-(5, 'user@example.com', '$2b$10$GRcof5G30t452I90enrr0enPnzvwHYoeAPIX0qV15Ua3UYXRA.poS', 'johndoe', NULL, '0812345678', 'Standard', NULL, NULL, 'user'),
-(6, 'test_signup@gmail.com', 'hashedpass', 'Test User', NULL, NULL, 'Standard', NULL, NULL, 'user'),
-(7, 'person_test02@gmail.com', '$2b$10$52dwphIXwk4SJYXzxWWi1e2.xgHIZ9qKD5IUOk7tCVhqKXYSoB8S6', 'person_test02', 'Natchanan Ratchasak', '0123456789', 'Pro', NULL, NULL, 'user'),
-(8, 'user_with_name@gmail.com', 'hashedpass', 'john_username', 'John Doe', NULL, 'Standard', NULL, NULL, 'user'),
-(9, 'standard@gmail.com', '$2b$10$ushz.6OHVF.GUVLnewMuoulmO/JWcSphWgakWdYzhgZvCykjE2Yx6', 'standard', 'Standard User', '0123456789', 'Standard', '/user_pic/user-1789656023007-574832842.jpg', NULL, 'user'),
-(10, 'pro@gmail.com', '$2b$10$7lszxSwdDj0nYv1puUEZnOe.gJB1UP30uyJo9T9Z1aUYa5WIiE9Nu', 'pro', 'pro', NULL, 'Pro', NULL, NULL, 'user'),
-(11, 'admin@gmail.com', '$2b$10$Gqtq3r7E5Rud9wOOH1mRdeNK2X/RXUkZoa.ScYiLDw5vyu7r4EVs2', 'admin', 'Admin', NULL, 'Admin', NULL, NULL, 'admin');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `username`, `name`, `phone`, `plan`, `pic`, `description`, `role`, `receipt`) VALUES
+(5, 'user@example.com', '$2b$10$GRcof5G30t452I90enrr0enPnzvwHYoeAPIX0qV15Ua3UYXRA.poS', 'johndoe', NULL, '0812345678', 'Standard', NULL, NULL, 'user', NULL),
+(6, 'test_signup@gmail.com', 'hashedpass', 'Test User', NULL, NULL, 'Standard', NULL, NULL, 'user', NULL),
+(7, 'person_test02@gmail.com', '$2b$10$52dwphIXwk4SJYXzxWWi1e2.xgHIZ9qKD5IUOk7tCVhqKXYSoB8S6', 'person_test02', 'Natchanan Ratchasak', '0123456789', 'Pro', NULL, NULL, 'user', NULL),
+(8, 'user_with_name@gmail.com', 'hashedpass', 'john_username', 'John Doe', NULL, 'Standard', NULL, NULL, 'user', NULL),
+(9, 'standard@gmail.com', '$2b$10$ushz.6OHVF.GUVLnewMuoulmO/JWcSphWgakWdYzhgZvCykjE2Yx6', 'standard', 'Standard User', '0123456789', 'Standard', '/user_pic/user-1789656023007-574832842.jpg', NULL, 'user', NULL),
+(10, 'pro@gmail.com', '$2b$10$7lszxSwdDj0nYv1puUEZnOe.gJB1UP30uyJo9T9Z1aUYa5WIiE9Nu', 'pro', 'pro', NULL, 'Pro', NULL, NULL, 'user', NULL),
+(11, 'admin@gmail.com', '$2b$10$Gqtq3r7E5Rud9wOOH1mRdeNK2X/RXUkZoa.ScYiLDw5vyu7r4EVs2', 'admin', 'Admin', NULL, 'Admin', NULL, NULL, 'admin', NULL);
 
 -- --------------------------------------------------------
 
@@ -443,14 +444,14 @@ CREATE TABLE `use_cases` (
 --
 
 INSERT INTO `use_cases` (`id`, `type`, `caption`, `description`, `project_id`) VALUES
-('UC-01', 'Actor', 'สมาชิกx', 'สมาชิกที่ลงชื่อเข้าใช้', 8),
+('UC-01', 'Actor', 'สมาชิก', 'สมาชิก', 8),
 ('UC-02', 'Actor', 'ผู้ดูแลระบบ', 'ผู้ที่ดูแลระบบในหลังบ้าน', 1),
 ('UC-02', 'Actor', 'ผู้ดูแลระบบ', 'ผู้ดูแลระบบทั้งหมด', 8),
 ('UC-03', 'Actor', 'ผู้ใช้งาน', 'ผู้ใช้งานที่รวมทั้ง สมาชิกและผู้ดูแลระบบ', 1),
 ('UC-03', 'Actor', 'ผู้ใช้งาน', 'ผู้ที่สามารถใช้งานระบบนี้ได้', 8),
 ('UC-04', 'Use Case', 'จัดการข้อมูลผู้ใช้งาน', 'เพิ่ม / ลบ / แก้ไข ข้อมูลผู้ใช้งาน', 8),
 ('UC-05', 'Use Case', 'จัดการข้อมูลเกี่ยวกับโปรเจค', 'เพิ่ม / ลบ / แก้ไข ข้อมูลโปรเจค', 8),
-('UC-06', 'Use Case', 'จัดการ Team ในโปรเจค', 'เพิ่ม / ลบ สมาชิกใน Team', 8);
+('UC-06', 'Use Case', '6', '6', 8);
 
 --
 -- Indexes for dumped tables
