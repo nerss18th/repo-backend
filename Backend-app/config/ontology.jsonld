@@ -1,0 +1,68 @@
+{
+  "@context": {
+    "se": "http://example.org/software-engineering#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl": "http://www.w3.org/2002/07/owl#"
+  },
+  "@graph": [
+    {
+      "@id": "se:UseCase",
+      "@type": "owl:Class",
+      "rdfs:label": "Use Case",
+      "rdfs:comment": "Represents a Use Case in a Use Case Diagram"
+    },
+    {
+      "@id": "se:Class",
+      "@type": "owl:Class",
+      "rdfs:label": "Class",
+      "rdfs:comment": "Represents a Class in a Class Diagram"
+    },
+    {
+      "@id": "se:Attribute",
+      "@type": "owl:Class",
+      "rdfs:label": "Attribute",
+      "rdfs:comment": "Represents an Attribute of a Class"
+    },
+    {
+      "@id": "se:Method",
+      "@type": "owl:Class",
+      "rdfs:label": "Method",
+      "rdfs:comment": "Represents a Method of a Class"
+    },
+    {
+      "@id": "se:SequenceFlow",
+      "@type": "owl:Class",
+      "rdfs:label": "Sequence Flow",
+      "rdfs:comment": "Represents a sequence or message flow in a Sequence Diagram"
+    },
+    {
+      "@id": "se:realizes",
+      "@type": "owl:ObjectProperty",
+      "rdfs:label": "realizes",
+      "rdfs:comment": "Indicates that a component realizes a use case (e.g., a Class realizes a Use Case)",
+      "rdfs:domain": "se:Class",
+      "rdfs:range": "se:UseCase"
+    },
+    {
+      "@id": "se:participatesIn",
+      "@type": "owl:ObjectProperty",
+      "rdfs:label": "participates in",
+      "rdfs:comment": "Indicates participation of a class or actor in a use case or sequence flow"
+    },
+    {
+      "@id": "se:hasAttribute",
+      "@type": "owl:ObjectProperty",
+      "rdfs:label": "has attribute",
+      "rdfs:comment": "Links a class to its attributes",
+      "rdfs:domain": "se:Class",
+      "rdfs:range": "se:Attribute"
+    },
+    {
+      "@id": "se:calls",
+      "@type": "owl:ObjectProperty",
+      "rdfs:label": "calls",
+      "rdfs:comment": "Indicates that a method or class calls another method or class"
+    }
+  ]
+}

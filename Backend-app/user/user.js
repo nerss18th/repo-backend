@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/mysql');
 const { hashPassword, comparePassword, generateToken, authGuard } = require('../config/authguard');
-const { uploadUserPic } = require('../config/multerConfig');
+const { uploadUserPic, uploadReceipt } = require('../config/multerConfig');
 
 /**
  * @route   POST /users/signup
@@ -100,7 +100,7 @@ router.post('/login', async (req, res) => {
         }
 
         const [users] = await pool.query(
-            'SELECT id, email, password_hash, username, name, phone, plan, pic, description, role FROM users WHERE email = ?',
+            'SELECT id, email, password_hash, username, name, phone, plan, pic, description, role, receipt FROM users WHERE email = ?',
             [email]
         );
 
@@ -130,7 +130,8 @@ router.post('/login', async (req, res) => {
             plan: user.plan,
             pic: user.pic,
             description: user.description,
-            role: user.role
+            role: user.role,
+            receipt: user.receipt
         };
 
         const token = generateToken({ id: user.id, email: user.email, username: user.username, name: loggedInUser.name, plan: user.plan, role: user.role });
@@ -159,7 +160,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', authGuard, async (req, res) => {
     try {
         const [users] = await pool.query(
-            'SELECT id, email, username, name, phone, plan, pic, description, role FROM users WHERE id = ?',
+            'SELECT id, email, username, name, phone, plan, pic, description, role, receipt FROM users WHERE id = ?',
             [req.user.id]
         );
 
@@ -257,6 +258,33 @@ router.post('/upload-profile-pic', authGuard, uploadUserPic.single('image'), asy
         });
     } catch (error) {
         console.error('Upload profile pic error:', error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+/**
+ * @route   POST /users/upload-receipt
+ * @desc    อัปโหลดสลิปการชำระเงินของผู้ใช้งาน (Pro Plan)
+ * @access  Private
+ */
+router.post('/upload-receipt', authGuard, uploadReceipt.single('receipt'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'ไม่มีไฟล์สลิปที่อัปโหลด' });
+        }
+
+        const receiptPath = `/user_pic/Receipt/${req.file.filename}`;
+
+        // อัปเดตที่อยู่สลิปลงในคอลัมน์ receipt ของตาราง users
+        await pool.query('UPDATE users SET receipt = ? WHERE id = ?', [receiptPath, req.user.id]);
+
+        return res.json({
+            success: true,
+            message: 'อัปโหลดสลิปการชำระเงินสำเร็จ',
+            receiptPath: receiptPath
+        });
+    } catch (error) {
+        console.error('Upload receipt error:', error);
         return res.status(500).json({ success: false, message: error.message });
     }
 });

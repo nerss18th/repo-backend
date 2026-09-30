@@ -9,8 +9,11 @@
     "express": "^5.2.1",
     "image-size": "^2.0.4",
     "jsonwebtoken": "^9.0.3",
+    "mammoth": "^1.13.0",
     "multer": "^2.3.0",
     "mysql2": "^3.24.3",
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.20.2",
     "pizzip": "^3.2.0"
   },
   "name": "backend-app",

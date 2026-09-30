@@ -7,6 +7,9 @@ const Docxtemplater = require('docxtemplater');
 const ImageModule = require('docxtemplater-image-module-free');
 const pool = require('../config/mysql');
 const { authGuard } = require('../config/authguard');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 
 // Helper function to read file asynchronously (if needed, but fs.readFileSync is fine for docxtemplater)
 const getTemplatePath = (diagramType, fileName) => {
@@ -140,14 +143,22 @@ router.get('/project/:projectId/use-case', authGuard, async (req, res) => {
         fs.writeFileSync(exportFilePath, buf);
 
         // 6. ส่งไฟล์ให้ไคลเอนต์ (ผู้ใช้)
-        res.download(exportFilePath, exportFileName, (err) => {
-            if (err) {
-                console.error('Error downloading file:', err);
-                if (!res.headersSent) {
-                    res.status(500).json({ success: false, message: 'Error downloading file' });
-                }
-            }
-        });
+        const pdfDir = path.dirname(exportFilePath);
+        const pdfFileName = exportFileName.replace('.docx', '.pdf');
+        const pdfFilePath = path.join(pdfDir, pdfFileName);
+        
+        try {
+            const psCommand = `$word = New-Object -ComObject Word.Application; $word.Visible = $false; $doc = $word.Documents.Open('${exportFilePath}'); $doc.SaveAs([ref] '${pdfFilePath}', [ref] 17); $doc.Close(); $word.Quit();`;
+            await execPromise(`powershell.exe -Command "${psCommand}"`);
+            res.download(pdfFilePath, pdfFileName, (err) => {
+                if (err) console.error('Error downloading PDF:', err);
+                if (fs.existsSync(exportFilePath)) fs.unlinkSync(exportFilePath);
+                if (fs.existsSync(pdfFilePath)) fs.unlinkSync(pdfFilePath);
+            });
+        } catch (execErr) {
+            console.error('Error converting to PDF:', execErr);
+            if (!res.headersSent) res.status(500).json({ success: false, message: 'Error converting to PDF' });
+        }
 
     } catch (error) {
         console.error('Export Use Case error:', error);
@@ -313,14 +324,22 @@ router.get('/project/:projectId/class-diagram', authGuard, async (req, res) => {
         fs.writeFileSync(exportFilePath, buf);
 
         // 6. Send file to client
-        res.download(exportFilePath, exportFileName, (err) => {
-            if (err) {
-                console.error('Error downloading file:', err);
-                if (!res.headersSent) {
-                    res.status(500).json({ success: false, message: 'Error downloading file' });
-                }
-            }
-        });
+        const pdfDir = path.dirname(exportFilePath);
+        const pdfFileName = exportFileName.replace('.docx', '.pdf');
+        const pdfFilePath = path.join(pdfDir, pdfFileName);
+        
+        try {
+            const psCommand = `$word = New-Object -ComObject Word.Application; $word.Visible = $false; $doc = $word.Documents.Open('${exportFilePath}'); $doc.SaveAs([ref] '${pdfFilePath}', [ref] 17); $doc.Close(); $word.Quit();`;
+            await execPromise(`powershell.exe -Command "${psCommand}"`);
+            res.download(pdfFilePath, pdfFileName, (err) => {
+                if (err) console.error('Error downloading PDF:', err);
+                if (fs.existsSync(exportFilePath)) fs.unlinkSync(exportFilePath);
+                if (fs.existsSync(pdfFilePath)) fs.unlinkSync(pdfFilePath);
+            });
+        } catch (execErr) {
+            console.error('Error converting to PDF:', execErr);
+            if (!res.headersSent) res.status(500).json({ success: false, message: 'Error converting to PDF' });
+        }
 
     } catch (error) {
         console.error('Export Class Diagram error:', error);
@@ -516,14 +535,22 @@ router.get('/project/:projectId/activity-diagram', authGuard, async (req, res) =
         fs.writeFileSync(exportFilePath, buf);
 
         // 6. Send file to client
-        res.download(exportFilePath, exportFileName, (err) => {
-            if (err) {
-                console.error('Error downloading file:', err);
-                if (!res.headersSent) {
-                    res.status(500).json({ success: false, message: 'Error downloading file' });
-                }
-            }
-        });
+        const pdfDir = path.dirname(exportFilePath);
+        const pdfFileName = exportFileName.replace('.docx', '.pdf');
+        const pdfFilePath = path.join(pdfDir, pdfFileName);
+        
+        try {
+            const psCommand = `$word = New-Object -ComObject Word.Application; $word.Visible = $false; $doc = $word.Documents.Open('${exportFilePath}'); $doc.SaveAs([ref] '${pdfFilePath}', [ref] 17); $doc.Close(); $word.Quit();`;
+            await execPromise(`powershell.exe -Command "${psCommand}"`);
+            res.download(pdfFilePath, pdfFileName, (err) => {
+                if (err) console.error('Error downloading PDF:', err);
+                if (fs.existsSync(exportFilePath)) fs.unlinkSync(exportFilePath);
+                if (fs.existsSync(pdfFilePath)) fs.unlinkSync(pdfFilePath);
+            });
+        } catch (execErr) {
+            console.error('Error converting to PDF:', execErr);
+            if (!res.headersSent) res.status(500).json({ success: false, message: 'Error converting to PDF' });
+        }
 
     } catch (error) {
         console.error('Export Activity Diagram error:', error);

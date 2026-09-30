@@ -10,7 +10,9 @@ const classDiagramRoutes = require('./diagram/class_diagram');
 const activityDiagramRoutes = require('./diagram/activity_diagram');
 const diagramRoutes = require('./diagram/diagram');
 const exportRoutes = require('./exports/export_doc');
+const exportPdfRoutes = require('./exports/export_pdf');
 const adminRoutes = require('./user/admin');
+const ontologyApi = require('./config/ontology_export');
 
 const app = express();
 app.use(cors());
@@ -29,7 +31,9 @@ app.use('/diagrams', classDiagramRoutes);
 app.use('/diagrams', activityDiagramRoutes);
 app.use('/diagrams', diagramRoutes);
 app.use('/export', exportRoutes);
+app.use('/export-pdf', exportPdfRoutes);
 app.use('/admin', adminRoutes);
+app.use('/ontology', ontologyApi);
 
 // หน้าแรกเริ่มต้น
 app.get('/', (req, res) => {

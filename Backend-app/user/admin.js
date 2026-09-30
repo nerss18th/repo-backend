@@ -88,4 +88,31 @@ router.get('/users/:id/projects', authGuard, adminGuard, async (req, res) => {
     }
 });
 
+/**
+ * @route   PUT /admin/users/:id/plan
+ * @desc    เปลี่ยนแพ็กเกจ (Plan) ของผู้ใช้งาน (เฉพาะ Admin)
+ * @access  Private (Admin Only)
+ */
+router.put('/users/:id/plan', authGuard, adminGuard, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { plan } = req.body; // 'Standard' หรือ 'Pro'
+
+        if (!['Standard', 'Pro'].includes(plan)) {
+            return res.status(400).json({ success: false, message: 'Plan ไม่ถูกต้อง (รองรับ Standard หรือ Pro เท่านั้น)' });
+        }
+
+        if (parseInt(id) === req.user.id) {
+            return res.status(400).json({ success: false, message: 'คุณไม่สามารถเปลี่ยนแพ็กเกจของตัวคุณเองได้ที่นี่' });
+        }
+
+        await pool.query('UPDATE users SET plan = ? WHERE id = ?', [plan, id]);
+
+        return res.json({ success: true, message: `เปลี่ยนแพ็กเกจผู้ใช้เป็น ${plan} สำเร็จ` });
+    } catch (error) {
+        console.error('Change plan error:', error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
