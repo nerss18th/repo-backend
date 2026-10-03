@@ -25,6 +25,33 @@ services:
     networks:
       - app_network
 
+  # ─── Backend Node.js API ──────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./Backend-app
+      dockerfile: Dockerfile
+    container_name: nodejs_backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=user
+      - DB_PASSWORD=userpassword
+      - DB_NAME=ontology_db
+      - JWT_SECRET=SECRET_KEY
+    volumes:
+      - ./Backend-app:/app
+      - /app/node_modules
+    command: npm start
+    networks:
+      - app_network
+
   # ─── phpMyAdmin (Database GUI) ────────────────────────────────────────────────
   phpmyadmin:
     image: phpmyadmin:latest

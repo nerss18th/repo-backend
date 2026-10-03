@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const pool = require('./config/mysql');
 const userRoutes = require('./user/user');
+const otpRoutes = require('./user/otp');
 const projectRoutes = require('./project');
 const useCaseRoutes = require('./diagram/use_case');
 const classDiagramRoutes = require('./diagram/class_diagram');
@@ -24,6 +25,7 @@ app.use('/user_pic', express.static(path.join(__dirname, 'user_pic')));
 app.use('/diagram_pic', express.static(path.join(__dirname, 'diagram_pic')));
 
 // เส้นทาง API
+app.use('/auth', otpRoutes);
 app.use('/users', userRoutes);
 app.use('/projects', projectRoutes);
 app.use('/diagrams', useCaseRoutes);
