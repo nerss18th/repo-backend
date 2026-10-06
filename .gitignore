@@ -1,4 +1,3 @@
 Backend-app/node_modules/
 Backend-app/exports/**/*.docx
 Backend-app/exports/**/*.pdf
-Backend-app/.env
